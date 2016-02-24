@@ -1,0 +1,9 @@
+example1	accession_1/accession_2
+example2	accession_1//accession_2/accession_3
+example3	accession_1/accession_2//accession_3
+example4	accession_1//accession_2/accession_3///accession_3
+example5	accession_1/2/accession_2/accession_3/3/accession_3
+example6	(accession_1/(accession_2/accession_3))/accession_3
+example7	namevar(accession_1/2/accession_2/accession_3)/3/accession_3
+example8	(accession_1/2/accession_2/accession_3)namevar/3/accession_3
+example9	accession_1/accession_2//accession_3*4///accession_4

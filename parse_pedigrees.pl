@@ -29,8 +29,8 @@ use Getopt::Std;
 use lib "$ENV{PWD}/lib";
 use Bio::GeneticRelationships::ParsePedigree;
 
-our ($opt_i, $opt_h);
-getopts('i:h');
+our ($opt_i, $opt_L, $opt_h);
+getopts('i:Lh');
 if ($opt_h){
     help();
     exit;
@@ -57,6 +57,7 @@ while (<FILE>) {
     my $pedigree_objs = $pedigree_parse->parse_pedigrees();
 
     my $cross_data_ref = $pedigree_parse->get_cross_data(); 
+    my $leaf_data_ref = $pedigree_parse->get_leaf_data(); 
 
     #if ($pedigree_parse->is_root()) {
 #	print "$line\t$accession"."\t".$pedigree."\t".$pedigree."\t".$pedigree."\t".$pedigree."\t0\tA\n";
@@ -68,16 +69,22 @@ while (<FILE>) {
     } elsif (!$cross_data_ref){
 	print "$line\t$accession\tParse error\t$pedigree\n";
     } else {
-	my %cross_data = %$cross_data_ref;
-
-	foreach my $cross_key (keys %cross_data) {
-	    my $cross_info = $cross_data{$cross_key};
-	    print "$line\t$accession"."\t".$cross_info->{'progeny'}."\t".$cross_info->{'progeny_pedigree'}."\t".$cross_info->{'parent_a'}."\t".$cross_info->{'parent_b'}."\t".$cross_info->{'level'}."\t".$cross_info->{'a_or_b'}."\n";
-#		print "prog(".$cross_info->{'progeny_pedigree'}.")\n";
-#		print "prog(".$cross_info->{'progeny'}.")\n";
+	if ($opt_L) {
+	    my %leaf_data = %$leaf_data_ref;
+	    foreach my $leaf_key (keys %leaf_data) {
+		my $leaf_info = $leaf_data{$leaf_key};
+		print "$line\t$accession"."\t".$leaf_info->{'accession'}."\t".$leaf_info->{'leaf'}."\n";
+	    }
+	} else {
+	    my %cross_data = %$cross_data_ref;
+	    foreach my $cross_key (keys %cross_data) {
+		my $cross_info = $cross_data{$cross_key};
+		print "$line\t$accession"."\t".$cross_info->{'progeny'}."\t".$cross_info->{'progeny_pedigree'}."\t".$cross_info->{'parent_a'}."\t".$cross_info->{'parent_b'}."\t".$cross_info->{'level'}."\t".$cross_info->{'a_or_b'}."\n";
+	    }
 	}
     }
 }
+
 close FILE;
 
 
@@ -95,6 +102,8 @@ sub help {
     Flags:
 
       -i <input_pedigree_file>      input pedigree file (mandatory)
+
+      -L                            output leafs instead of parsed pedigrees
 
       -h <help>                     help
 

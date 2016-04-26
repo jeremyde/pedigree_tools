@@ -26,8 +26,9 @@ $test_pedigrees{'3_deep_parentheses'}='(accession_1/(accession_2/accession_3))/a
 $test_pedigrees{'named_cross_left_name_first'}='namevar(accession_1/2/accession_2/accession_3)/3/accession_3';
 $test_pedigrees{'named_cross_left_name_last'}='(accession_1/2/accession_2/accession_3)namevar/3/accession_3';
 $test_pedigrees{'backcross'}='accession_1/accession_2//accession_3*4///accession_4';
+$test_pedigrees{'backcross_front'}='accession_1*4/accession_2//accession_3/3/accession_4';
 $test_pedigrees{'mixed'}='accession_1/3/accession_2/accession_3//(accession_4//accession_5/accession_6/3/accession_7)';
-
+$test_pedigrees{'double_name'}='namevar1(accession_1/accession_2//accession_3)/namevar2(accession_4/accession_5//accession_6)';
 
 my $cross_data_ref;
 my $parent_a_name;
@@ -41,7 +42,7 @@ ok($cross_data_ref = $pedigree_parse->get_cross_data());
 is($cross_data_ref->{'testaccession'}->{'parent_a'},'accession_1');
 is($cross_data_ref->{'testaccession'}->{'parent_b'},'accession_2');
 
-# Test pedigree two deep on right side
+# # Test pedigree two deep on right side
 ok($pedigree_parse = Bio::GeneticRelationships::ParsePedigree->new( pedigree => $test_pedigrees{'2_deep_right'}, accession=> $test_accession));
 ok($pedigree_parse->parse_pedigrees());
 ok($cross_data_ref = $pedigree_parse->get_cross_data()); 
@@ -50,7 +51,7 @@ ok($parent_b_name = $cross_data_ref->{'testaccession'}->{'parent_b'});
 is($cross_data_ref->{$parent_b_name}->{'parent_a'},'accession_2');
 is($cross_data_ref->{$parent_b_name}->{'parent_b'},'accession_3');
 
-# Test pedigree two deep on left side
+# # Test pedigree two deep on left side
 ok($pedigree_parse = Bio::GeneticRelationships::ParsePedigree->new( pedigree => $test_pedigrees{'2_deep_left'}, accession=> $test_accession));
 ok($pedigree_parse->parse_pedigrees());
 ok($cross_data_ref = $pedigree_parse->get_cross_data()); 
@@ -59,7 +60,7 @@ ok($parent_a_name = $cross_data_ref->{'testaccession'}->{'parent_a'});
 is($cross_data_ref->{$parent_a_name}->{'parent_a'},'accession_1');
 is($cross_data_ref->{$parent_a_name}->{'parent_b'},'accession_2');
 
-# Test pedigree three deep with three slashes
+# # Test pedigree three deep with three slashes
 ok($pedigree_parse = Bio::GeneticRelationships::ParsePedigree->new( pedigree => $test_pedigrees{'3_deep_slashes'}, accession=> $test_accession));
 ok($pedigree_parse->parse_pedigrees());
 ok($cross_data_ref = $pedigree_parse->get_cross_data()); 
@@ -68,7 +69,7 @@ ok($parent_b_name = $cross_data_ref->{$parent_a_name}->{'parent_b'});
 is($cross_data_ref->{$parent_b_name}->{'parent_a'},'accession_2');
 is($cross_data_ref->{$parent_b_name}->{'parent_b'},'accession_3');
 
-# Test pedigree three deep with number between slashes
+# # Test pedigree three deep with number between slashes
 ok($pedigree_parse = Bio::GeneticRelationships::ParsePedigree->new( pedigree => $test_pedigrees{'3_deep_number'}, accession=> $test_accession));
 ok($pedigree_parse->parse_pedigrees());
 ok($cross_data_ref = $pedigree_parse->get_cross_data()); 
@@ -77,7 +78,7 @@ ok($parent_b_name = $cross_data_ref->{$parent_a_name}->{'parent_b'});
 is($cross_data_ref->{$parent_b_name}->{'parent_a'},'accession_2');
 is($cross_data_ref->{$parent_b_name}->{'parent_b'},'accession_3');
 
-# Test pedigree three deep with parentheses
+# # Test pedigree three deep with parentheses
 ok($pedigree_parse = Bio::GeneticRelationships::ParsePedigree->new( pedigree => $test_pedigrees{'3_deep_parentheses'}, accession=> $test_accession));
 ok($pedigree_parse->parse_pedigrees());
 ok($cross_data_ref = $pedigree_parse->get_cross_data()); 
@@ -120,3 +121,21 @@ is($cross_data_ref->{'testaccession'}->{'parent_a'},'accession_1');
 ok($parent_b_name = $cross_data_ref->{'testaccession'}->{'parent_b'});
 ok($parent_b_name2 = $cross_data_ref->{$parent_b_name}->{'parent_b'});
 is($cross_data_ref->{$parent_b_name2}->{'parent_b'},'accession_7');
+
+# Test pedigree containing backcross on front side
+ok($pedigree_parse = Bio::GeneticRelationships::ParsePedigree->new( pedigree => $test_pedigrees{'backcross_front'}, accession=> $test_accession));
+ok($pedigree_parse->parse_pedigrees());
+ok($cross_data_ref = $pedigree_parse->get_cross_data()); 
+ok($parent_a_name = $cross_data_ref->{'testaccession'}->{'parent_a'});
+is($cross_data_ref->{$parent_a_name}->{'parent_b'},'accession_3'); 
+ok(my $parent_BC2_name = $cross_data_ref->{$parent_a_name}->{'parent_a'});
+is($cross_data_ref->{$parent_BC2_name}->{'parent_a'},'accession_1'); 
+ok(my $parent_BC1_name = $cross_data_ref->{$parent_BC2_name}->{'parent_b'});
+is($cross_data_ref->{$parent_BC1_name}->{'parent_a'},'accession_1'); 
+
+# Test pedigree with a named variety and corresponding pedigree twice
+ok($pedigree_parse = Bio::GeneticRelationships::ParsePedigree->new( pedigree => $test_pedigrees{'double_name'}, accession=> $test_accession));
+ok($pedigree_parse->parse_pedigrees());
+ok($cross_data_ref = $pedigree_parse->get_cross_data()); 
+ok($parent_a_name = $cross_data_ref->{'namevar2'}->{'parent_a'});
+is($cross_data_ref->{$parent_a_name}->{'parent_a'},'accession_4');

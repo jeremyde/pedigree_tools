@@ -8,11 +8,12 @@ extract_pedigree_names.pl
 
 =head1 SYNOPSIS
 
-extract_pedigree_names.pl -i pedigrees.csv > names.txt
+extract_pedigree_names.pl -i pedigrees.csv > parsed.txt
+extract_pedigree_names.pl -L -i pedigrees.csv > names.txt
 
 =head1 DESCRIPTION
 
-This script extracts unique names from pedigrees.
+This script parses pedigrees and extracts unique names.
 
 =head1 LICENSE
 
@@ -45,24 +46,16 @@ open FILE, "<", $opt_i or die "No such file $opt_i";
 while (<FILE>) {
     $line++;
     chomp $_;
-#    $_ =~ y/\n//d;
-#    $_ =~ s/\m//d;
     $_ =~ s/\r//g;
     my @row =  split('\t', $_);
     my $accession = $row[0];
     my $pedigree = $row[1];
-    #chomp $accession;
-    #chomp $pedigree;
+
     my $pedigree_parse = Bio::GeneticRelationships::ParsePedigree->new( pedigree => $pedigree, accession => $accession);
     my $pedigree_objs = $pedigree_parse->parse_pedigrees();
 
     my $cross_data_ref = $pedigree_parse->get_cross_data(); 
     my $leaf_data_ref = $pedigree_parse->get_leaf_data(); 
-
-    #if ($pedigree_parse->is_root()) {
-#	print "$line\t$accession"."\t".$pedigree."\t".$pedigree."\t".$pedigree."\t".$pedigree."\t0\tA\n";
-#	next;
-#    }
 
     if ($pedigree_parse->has_parse_error()) {
 	print "$line\t$accession\tParse error\t$pedigree\n";
@@ -97,13 +90,14 @@ sub help {
 
     Usage:
 
-      extract_pedigree_names.pl -i pedigrees.csv > names.txt
+      extract_pedigree_names.pl -i pedigrees.csv > pedigrees.txt
+      extract_pedigree_names.pl -L -i pedigrees.csv > names.txt
 
     Flags:
 
       -i <input_pedigree_file>      input pedigree file (mandatory)
 
-      -L                            output leafs instead of parsed pedigrees
+      -L                            output leafs (accession names) instead of parsed pedigrees
 
       -h <help>                     help
 

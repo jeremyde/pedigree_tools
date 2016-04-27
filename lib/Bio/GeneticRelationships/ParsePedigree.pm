@@ -361,8 +361,8 @@ sub _do_next_split_pedigree {
     my $parent_B = substr($pedigree_str, $longest_end + 1, length($pedigree_str));
     my $parent_A_id;
     my $parent_B_id;
-    $parent_A_id = _split_pedigree($self, $parent_A, "A", $level, $parent_A);
-    $parent_B_id = _split_pedigree($self, $parent_B, "B", $level, $parent_B);
+    $parent_A_id = _split_pedigree($self, $parent_A, "A", $level);
+    $parent_B_id = _split_pedigree($self, $parent_B, "B", $level);
     if (!$parent_A_id || !$parent_B_id ) {
 	print STDERR "Pedigree structure error: _do_split_pedigree\n";
 	$self->set_parse_error('-1');

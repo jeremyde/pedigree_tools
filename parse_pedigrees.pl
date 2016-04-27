@@ -27,7 +27,9 @@ This script parses pedigrees and extracts unique names.
 
 use strict;
 use Getopt::Std;
-use lib "$ENV{PWD}/lib";
+use Dir::Self;
+use lib __DIR__ . "/lib";
+
 use Bio::GeneticRelationships::ParsePedigree;
 
 our ($opt_i, $opt_L, $opt_h);
